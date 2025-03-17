@@ -2,7 +2,7 @@ import os
 
 
 def execute_pytest_test(test_name):
-    os.system(f"pytest -v -k \"{test_name}\"")
+    os.system(f"py -m pytest -v -k \"{test_name}\"")
 
 
 def print_test_options():
