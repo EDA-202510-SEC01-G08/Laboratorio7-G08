@@ -26,7 +26,12 @@ def put(my_table, key, value):
         sl.change_info(my_table["table"][hash], pos, {"key": key, "value": value})
     elif sl.is_present(my_table["table"][hash], key, default_compare) == -1:
         sl.add_last(my_table["table"][hash], me.new_map_entry(key, value))
-        #Faltaría añadir un elemento a la lista y hacer el rehash en caso de que el current factor supere al load factor
+        my_table["size"] += 1
+        my_table["current_factor"] = my_table["size"]/my_table["capacity"]
+    
+    if my_table["current_factor"] > my_table["limit_factor"]:
+        rehash(my_table)
+    
     return my_table
 
 def default_compare(key, entry):
@@ -90,5 +95,25 @@ def value_set(my_table):
     return lista_valores
 
 def rehash(my_table):
-    #TODO: Completar la función rehash
-    pass
+    cap_actual = my_table["capacity"]
+    cap_nueva = mf.next_prime(2*cap_actual)
+    table_nueva = ar.new_list()
+    for x in range(cap_nueva):
+        mini_lista = sl.new_list()
+        ar.add_last(table_nueva, mini_lista)
+    new_table = {"prime": 109345121,
+                 "capacity": cap_nueva,
+                 "scale": 1,
+                 "shift": 0,
+                 "table": table_nueva,
+                 "current_factor": 0,
+                 "limit_factor": 4,
+                 "size": 0}
+    pos = 0
+    while pos < my_table["size"]:
+        for i in range(my_table["table"][pos]["size"]):
+            llave = me.get_key(sl.get_element(my_table["table"][pos], i))
+            valor = me.get_value(sl.get_element(my_table["table"][pos], i))
+            put(new_table, llave, valor)
+        pos += 1
+    return new_table
