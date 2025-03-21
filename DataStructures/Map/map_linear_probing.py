@@ -1,43 +1,89 @@
-import map_functions as mf
-import map_entry as me
-#import array_list as lt
-
-def new_list():
-    new_list = {"elements": [],
-                "size": 0,
-                }
-    return new_list
-
-def add_last(my_list, element):
-    my_list["elements"].append(element)
-    my_list["size"] += 1
-    return my_list
-
-def get_element(my_list, index):
-    return my_list["elements"][index]
+from DataStructures.Map import map_functions as mf
+from DataStructures.Map import map_entry as me
+from DataStructures.List import array_list as lt
+import random as rd
 
 def new_map(num_elements, load_factor, prime=109345121):
     
      capacity = int(mf.next_prime(num_elements/ load_factor))
 
-     x = new_list() #lt.
-     dict = {"key": None, "value": None}
+     x = lt.new_list() 
      for i in range(capacity):
-         add_last(x, dict) #lt.
+         dict = {"key": None, "value": None}
+         lt.add_last(x, dict) 
 
-     map = {"prime": prime, "capacity": capacity, 'scale': 1,
-           'shift': 0,'table': x, "current_factor": 0, "limit_factor": load_factor,
+     map = {"prime": prime, "capacity": capacity, 'scale': rd.randint(1,prime-1),
+           'shift': rd.randint(0, prime-1),'table': x, "current_factor": 0, "limit_factor": load_factor,
              "size": 0} 
     
      return map
 
 def put(my_map, key, value):
      
-     hash = mf.hash_value(my_map["table"], key)
-     slot = find_slot(my_map, key, hash)
+     hash = mf.hash_value(my_map, key)
+     slot = int(find_slot(my_map, key, hash)[1])
 
-     my_map["table"][slot] = 1
+     me.set_key(lt.get_element(my_map["table"], slot), key)
+     me.set_value(lt.get_element(my_map["table"], slot), value)
+     my_map["size"] += 1
+     my_map["current_factor"] = size(my_map) / my_map["capacity"]
 
+     if my_map["current_factor"] > my_map["limit_factor"]:
+         rehash(my_map)
+     
+     return my_map
+
+def contains(my_map, key):
+    
+     for i in my_map["table"]["elements"]:
+          if me.get_key(i) == key:
+               return True
+          
+     return False
+
+def get(my_map, key):
+     
+     for i in my_map["table"]["elements"]:
+         if me.get_key(i) == key:
+             return me.get_value(i)
+
+     return None
+
+def remove(my_map, key):
+    
+     for i in my_map["table"]["elements"]:
+         if me.get_key(i) == key:
+             me.set_key(i, "__EMPTY__")
+             me.set_value(i, "__EMPTY__")
+             my_map["size"] -= 1
+             return my_map
+         
+     return my_map
+
+def size(my_map):
+    return my_map["size"]
+
+def is_empty(my_map):
+
+     for i in my_map["table"]["elements"]:
+          if (me.get_key(i) is not None) and (me.get_key(i) != "__EMPTY__"): 
+               return False            
+     return True
+
+def key_set (my_map):
+     result = lt.new_list() 
+     for i in my_map["table"]["elements"]:
+        if me.get_key(i) is not None and me.get_key(i) != "__EMPTY__":
+            lt.add_last(result, me.get_key(i))
+     return result
+    
+def value_set (my_map):
+     result = lt.new_list()
+     for i in my_map["table"]["elements"]:
+        if me.get_value(i) is not None and me.get_value(i) != "__EMPTY__":
+            lt.add_last(result, me.get_value(i))
+     
+     return result
 
 def find_slot(my_map, key, hash_value):
    
@@ -49,11 +95,11 @@ def find_slot(my_map, key, hash_value):
       if is_available(my_map["table"], hash_value):
             if first_avail is None:
                first_avail = hash_value
-            entry = get_element(my_map["table"], hash_value) #lt.
+            entry = lt.get_element(my_map["table"], hash_value) 
             if me.get_key(entry) is None:
                found = True
 
-      elif default_compare(key, get_element(my_map["table"], hash_value)) == 0: #lt.
+      elif default_compare(key, lt.get_element(my_map["table"], hash_value)) == 0: 
             first_avail = hash_value
             found = True 
             ocupied = True
@@ -62,12 +108,22 @@ def find_slot(my_map, key, hash_value):
 
 def is_available(table, pos):
 
-     entry = get_element(table, pos)
-     if me.get_key(entry) is None or me.get_key(entry) == "__EMPTY__":#lt.
+     entry = lt.get_element(table, pos)
+     if me.get_key(entry) is None or me.get_key(entry) == "__EMPTY__":
           result = True
      else:
          result = False
      return result 
+
+def rehash(my_map):
+
+    nuevo = new_map(my_map["capacity"], my_map["limit_factor"])
+    j = 0
+    for i in key_set(my_map)["elements"]:
+        if i is not None and i != "__EMPTY__":
+            put(nuevo, i, lt.get_element(value_set(my_map), j))
+        j += 1
+    return nuevo
 
 def default_compare(key, entry):
 
@@ -76,9 +132,5 @@ def default_compare(key, entry):
      elif key > me.get_key(entry):
           return 1
      return -1
-
-map = new_map(1,0.5)
-
-print(map)
 
 
