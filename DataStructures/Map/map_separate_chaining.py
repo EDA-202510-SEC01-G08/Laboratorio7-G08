@@ -1,5 +1,5 @@
-import map_functions as mf
-import map_entry as me
+from DataStructures.Map import map_functions as mf
+from DataStructures.Map import map_entry as me
 from DataStructures.List import array_list as ar
 from DataStructures.List import single_linked_list as sl
 
@@ -21,17 +21,17 @@ def new_map(num_elements, load_factor, prime=109345121):
 
 def put(my_table, key, value):
     hash = mf.hash_value(my_table,key)
-    if sl.is_present(my_table["table"][hash], key, default_compare) != -1:
-        pos = sl.is_present(my_table["table"][hash], key, default_compare)
-        sl.change_info(my_table["table"][hash], pos, {"key": key, "value": value})
-    elif sl.is_present(my_table["table"][hash], key, default_compare) == -1:
-        sl.add_last(my_table["table"][hash], me.new_map_entry(key, value))
+
+    if sl.is_present(my_table["table"]["elements"][hash], key, default_compare) != -1:
+        pos = sl.is_present(my_table["table"]["elements"][hash], key, default_compare)
+        sl.change_info(my_table["table"]["elements"][hash], pos, {"key": key, "value": value})
+    elif sl.is_present(my_table["table"]["elements"][hash], key, default_compare) == -1:
+        sl.add_last(my_table["table"]["elements"][hash], me.new_map_entry(key, value))
         my_table["size"] += 1
         my_table["current_factor"] = my_table["size"]/my_table["capacity"]
     
     if my_table["current_factor"] > my_table["limit_factor"]:
         rehash(my_table)
-    
     return my_table
 
 def default_compare(key, entry):
@@ -45,20 +45,20 @@ def default_compare(key, entry):
 def contains(my_table, key):
     in_table = False
     hash = mf.hash_value(my_table, key)
-    if sl.is_present(my_table["table"][hash], key, default_compare) != -1:
+    if sl.is_present(my_table["table"]["elements"][hash], key, default_compare) != -1:
         in_table = True
     return in_table
 
 def remove(my_table, key):
     hash = mf.hash_value(my_table, key)
-    pos = sl.is_present(my_table["table"][hash],key, default_compare)
-    sl.delete_element(my_table["table"][hash], pos)
+    pos = sl.is_present(my_table["table"]["elements"][hash],key, default_compare)
+    sl.delete_element(my_table["table"]["elements"][hash], pos)
     return my_table
 
 def get(my_table, key):
     hash = mf.hash_value(my_table, key)
-    pos = sl.is_present(my_table["table"][hash],key, default_compare)
-    info = sl.get_element(my_table["table"][hash], pos)
+    pos = sl.is_present(my_table["table"]["elements"][hash],key, default_compare)
+    info = sl.get_element(my_table["table"]["elements"][hash], pos)
     value = me.get_value(info)
     return value
 
@@ -78,7 +78,7 @@ def key_set(my_table):
     while pos < my_table["size"]:
         slot_size = sl.size(my_table["table"][pos])
         for i in range(slot_size):
-            llave = me.get_key(sl.get_element(my_table["table"][pos],i))
+            llave = me.get_key(sl.get_element(my_table["table"]["elements"][pos],i))
             ar.add_last(lista_llaves, llave)
         pos += 1
     return lista_llaves
@@ -89,7 +89,7 @@ def value_set(my_table):
     while pos < my_table["size"]:
         slot_size = sl.size(my_table["table"][pos])
         for i in range(slot_size):
-            valor = me.get_value(sl.get_element(my_table["table"][pos],i))
+            valor = me.get_value(sl.get_element(my_table["table"]["elements"][pos],i))
             ar.add_last(lista_valores, valor)
         pos += 1
     return lista_valores
@@ -111,9 +111,9 @@ def rehash(my_table):
                  "size": 0}
     pos = 0
     while pos < my_table["size"]:
-        for i in range(my_table["table"][pos]["size"]):
-            llave = me.get_key(sl.get_element(my_table["table"][pos], i))
-            valor = me.get_value(sl.get_element(my_table["table"][pos], i))
+        for i in range(my_table["table"]["elements"][pos]["size"]):
+            llave = me.get_key(sl.get_element(my_table["table"]["elements"][pos], i))
+            valor = me.get_value(sl.get_element(my_table["table"]["elements"][pos], i))
             put(new_table, llave, valor)
         pos += 1
     return new_table
