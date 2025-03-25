@@ -50,10 +50,15 @@ def contains(my_table, key):
     return in_table
 
 def remove(my_table, key):
-    hash = mf.hash_value(my_table, key)
-    pos = sl.is_present(my_table["table"]["elements"][hash],key, default_compare)
-    sl.delete_element(my_table["table"]["elements"][hash], pos)
-    return my_table
+    if contains(my_table, key) == False:
+        return my_table
+    else: 
+        hash = mf.hash_value(my_table, key)
+        pos = sl.is_present(my_table["table"]["elements"][hash],key, default_compare)
+        sl.delete_element(my_table["table"]["elements"][hash], pos)
+        my_table["size"] -= 1
+        my_table["current_factor"] = my_table["size"]/my_table["capacity"]
+        return my_table
 
 def get(my_table, key):
     hash = mf.hash_value(my_table, key)
@@ -76,7 +81,7 @@ def key_set(my_table):
     pos = 0
     lista_llaves = ar.new_list()
     while pos < my_table["size"]:
-        slot_size = sl.size(my_table["table"][pos])
+        slot_size = sl.size(my_table["table"]["elements"][pos])
         for i in range(slot_size):
             llave = me.get_key(sl.get_element(my_table["table"]["elements"][pos],i))
             ar.add_last(lista_llaves, llave)
@@ -87,7 +92,7 @@ def value_set(my_table):
     pos = 0
     lista_valores = ar.new_list()
     while pos < my_table["size"]:
-        slot_size = sl.size(my_table["table"][pos])
+        slot_size = sl.size(my_table["table"]["elements"][pos])
         for i in range(slot_size):
             valor = me.get_value(sl.get_element(my_table["table"]["elements"][pos],i))
             ar.add_last(lista_valores, valor)
@@ -107,7 +112,7 @@ def rehash(my_table):
                  "shift": 0,
                  "table": table_nueva,
                  "current_factor": 0,
-                 "limit_factor": 4,
+                 "limit_factor": my_table["limit_factor"],
                  "size": 0}
     pos = 0
     while pos < my_table["size"]:
