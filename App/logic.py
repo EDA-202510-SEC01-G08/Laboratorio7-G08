@@ -354,11 +354,11 @@ def get_books_by_author_pub_year(catalog, author_name, pub_year):
     Retorna los libros asociados a un autor y un año de publicación específicos
     """
     # Iniciar medición de tiempo
-    start_time = getTime()
+    start_time = get_time()
     
     # Iniciar medición de memoria
     tracemalloc.start()
-    start_memory = getMemory()
+    start_memory = get_memory()
     
     # TODO: Completar la función de consulta HECHO
     # Sustituir con la lógica real
@@ -371,12 +371,12 @@ def get_books_by_author_pub_year(catalog, author_name, pub_year):
         resultado = None
 
     # Detener medición de memoria
-    stop_memory = getMemory()
+    stop_memory = get_memory()
     
     # Calcular medición de tiempo y memoria
-    end_time = getTime()
-    tiempo_transcurrido = deltaTime(end_time, start_time)
-    memoria_usada = deltaMemory(start_memory, stop_memory)
+    end_time = get_time()
+    tiempo_transcurrido = delta_time(end_time, start_time)
+    memoria_usada = delta_memory(start_memory, stop_memory)
     
     return resultado, tiempo_transcurrido, memoria_usada
 
@@ -404,25 +404,25 @@ def book_tag_size(catalog):
 # Funciones utilizadas para obtener memoria y tiempo
 #  -------------------------------------------------------------
 
-def getTime():
+def get_time():
     """
     Devuelve el instante tiempo de procesamiento en milisegundos
     """
     return float(time.perf_counter() * 1000)
 
-def getMemory():
+def get_memory():
     """
     Toma una muestra de la memoria alocada en un instante de tiempo
     """
     return tracemalloc.take_snapshot()
 
-def deltaTime(end, start):
+def delta_time(end, start):
     """
     Devuelve la diferencia entre tiempos de procesamiento muestreados
     """
     return float(end - start)
 
-def deltaMemory(start_memory, stop_memory):
+def delta_memory(start_memory, stop_memory):
     """
     Calcula la diferencia en memoria alocada del programa entre dos
     instantes de tiempo y devuelve el resultado en kBytes

@@ -54,15 +54,15 @@ def load_data(control):
     """
     Solicita a la controlador que cargue los datos
     """
-    start = get_time()
+    start = logic.get_time()
     tracemalloc.start()
-    start_mem = get_memory()
+    start_mem = logic.get_memory()
 
     books, authors, tags, book_tags = logic.load_data(control) 
 
-    end = get_time()
+    end = logic.get_time()
     delta_time = (start,end)
-    end_mem = get_memory()
+    end_mem = logic.get_memory()
     delta_memory = (start_mem, end_mem)
 
 
@@ -163,9 +163,9 @@ def main():
         inputs = input("Seleccione una opción para continuar\n")
         # TODO: agregar tiempo de ejecución y consumo de memoria HECHO
 
-        start = get_time()
+        start = logic.get_time()
         tracemalloc.start()
-        start_mem = get_memory()
+        start_mem = logic.get_memory()
 
         if int(inputs[0]) == 1:
             print("Cargando información de los archivos ....")
@@ -212,9 +212,9 @@ def main():
         else:
             continue
 
-        end = get_time()
+        end = logic.get_time()
         delta_time = (start,end)
-        end_mem = get_memory()
+        end_mem = logic.get_memory()
         delta_memory = (start_mem, end_mem)
 
         print(f"\nTiempo transcurrido: {delta_time[1] - delta_time[0]:.2f} ms")
