@@ -31,9 +31,7 @@ import tracemalloc
 from DataStructures.Map import map_linear_probing as lp
 from DataStructures.List import array_list as al
 
-# TODO Realice la importación del mapa linear probing
-# TODO Realice la importación de ArrayList como estructura de datos auxiliar para sus requerimientos
-# TODO Realice la importación del mapa separate chaining
+from DataStructures.Map import map_separate_chaining as sp
 
 
 data_dir = os.path.dirname(os.path.realpath('__file__')) + '/Data/GoodReads/'
@@ -56,20 +54,24 @@ def new_logic():
 
     #Tabla de Hash que contiene los libros indexados por good_reads_book_id  
     #(good_read_id -> book)
-    catalog['books_by_id'] = None #TODO completar la creación del mapa
+    #TODO completar la creación del mapa HECHO
+    catalog['books_by_id'] = lp.new_map(1000,0.7)
 
     #Tabla de Hash con la siguiente pareja llave valor: (author_name -> List(books))
-    catalog['books_by_authors'] = None #TODO completar la creación del mapa
+    #TODO completar la creación del mapa HEHCO
+    catalog['books_by_authors'] = lp.new_map(1000,0.7) 
 
     #Tabla de Hash con la siguiente pareja llave valor: (tag_name -> tag)
-    catalog['tags'] = None #TODO completar la creación del mapa
+    #TODO completar la creación del mapa HECHO
+    catalog['tags'] = lp.new_map(1000,0.7) 
 
     #Tabla de Hash con la siguiente pareja llave valor: (tag_id -> book_tags)
     catalog['book_tags'] = lp.new_map(1000,0.7)
 
     #Tabla de Hash principal que contiene sub-mapas dentro de los valores
     #con la siguiente representación de la pareja llave valor: (author_name -> (original_publication_year -> list(books)))
-    catalog['books_by_year_author'] = None #TODO completar la creación del mapa
+    #TODO completar la creación del mapa HECHO
+    catalog['books_by_year_author'] = lp.new_map(1000,0.7) 
     
     return catalog
 
@@ -77,16 +79,27 @@ def new_logic():
 # Funciones para la carga de datos
 #  -------------------------------------------------------------
 
-#TODO: incorporar las funciones para toma de tiempo y memoria
+#TODO: incorporar las funciones para toma de tiempo y memoria HECHO
+
 def load_data(catalog):
     """
     Carga los datos de los archivos y cargar los datos en la
     estructura de datos
     """
+    start = get_time()
+    tracemalloc.start()
+    start_mem = get_memory()
+
     books, authors = load_books(catalog)
     tag_size = load_tags(catalog)
     book_tag_size = load_books_tags(catalog)
-    return books, authors,tag_size,book_tag_size
+
+    end = get_time()
+    delta_time = (start,end)
+    end_mem = get_memory()
+    delta_memory = (start_mem, end_mem)
+
+    return books, authors,tag_size,book_tag_size, delta_time, delta_memory
 
 
 def load_books(catalog):
@@ -95,43 +108,83 @@ def load_books(catalog):
     cada uno de ellos, se crea en la lista de autores, a dicho autor y una
     referencia al libro que se esta procesando.
     """
+    start = get_time()
+    tracemalloc.start()
+    start_mem = get_memory()
+
     booksfile = data_dir + "books.csv"
     input_file = csv.DictReader(open(booksfile, encoding='utf-8'))
     for book in input_file:
         add_book(catalog, book)
-    return book_size(catalog), author_size(catalog)
+
+    end = get_time()
+    delta_time = (start,end)
+    end_mem = get_memory()
+    delta_memory = (start_mem, end_mem)
+    
+    return book_size(catalog), author_size(catalog), delta_time, delta_memory
 
 
 def load_tags(catalog):
     """
     Carga todos los tags del archivo y los agrega a la lista de tags
     """
+    start = get_time()
+    tracemalloc.start()
+    start_mem = get_memory()
+
     tagsfile = data_dir + 'tags.csv'
     input_file = csv.DictReader(open(tagsfile, encoding='utf-8'))
     for tag in input_file:
         add_tag(catalog, tag)
-    return tag_size(catalog)
+
+    end = get_time()
+    delta_time = (start,end)
+    end_mem = get_memory()
+    delta_memory = (start_mem, end_mem)
+
+    return tag_size(catalog), delta_time, delta_memory
 
 
 def load_books_tags(catalog):
     """
     Carga la información que asocia tags con libros.
     """
+    start = get_time()
+    tracemalloc.start()
+    start_mem = get_memory()
+
     bookstagsfile = data_dir +"book_tags.csv"
     input_file = csv.DictReader(open(bookstagsfile, encoding='utf-8'))
     for booktag in input_file:
         add_book_tag(catalog, booktag)
-    return book_tag_size(catalog)
+
+    end = get_time()
+    delta_time = (start,end)
+    end_mem = get_memory()
+    delta_memory = (start_mem, end_mem)
+
+    return book_tag_size(catalog), delta_time, delta_memory
 
 
 def new_tag(name, id):
     """
     Esta estructura almancena los tags utilizados para marcar libros.
     """
+    start = get_time()
+    tracemalloc.start()
+    start_mem = get_memory()
+
     tag = {"name": "", "tag_id": ""}
     tag['name'] = name
     tag['tag_id'] = id
-    return tag
+
+    end = get_time()
+    delta_time = (start,end)
+    end_mem = get_memory()
+    delta_memory = (start_mem, end_mem)
+
+    return tag, delta_time, delta_memory
 
 
 def new_book_tag(tag_id, book_id, count):
@@ -139,8 +192,18 @@ def new_book_tag(tag_id, book_id, count):
     Esta estructura crea una relación entre un tag y
     los libros que han sido marcados con dicho tag.
     """
+    start = get_time()
+    tracemalloc.start()
+    start_mem = get_memory()
+
     book_tag = {'tag_id': tag_id, 'book_id': book_id,'count':count}
-    return book_tag
+
+    end = get_time()
+    delta_time = (start,end)
+    end_mem = get_memory()
+    delta_memory = (start_mem, end_mem)
+
+    return book_tag, delta_time, delta_memory
 
 #  -----------------------------------------------   
 #  Funciones para agregar informacion al catalogo
@@ -198,7 +261,10 @@ def add_book_author_and_year(catalog, author_name, book):
     books_by_year_author = catalog['books_by_year_author']
     pub_year = book['original_publication_year']
     #Si el año de publicación está vacío se reemplaza por un valor simbolico
-    #TODO Completar manejo de los escenarios donde el año de publicación es vacío.
+    #TODO Completar manejo de los escenarios donde el año de publicación es vacío. HECHO
+    if not pub_year:
+        pub_year = "0"
+
     author_value = lp.get(books_by_year_author,author_name)
     if author_value:
         pub_year_value = lp.get(author_value,pub_year)
@@ -209,8 +275,13 @@ def add_book_author_and_year(catalog, author_name, book):
             al.add_last(books, book)
             pub_year_map = lp.new_map(1000,0.7)
             lp.put(pub_year_map,pub_year,book)
-    else:
-        pass # TODO Completar escenario donde no se había agregado el autor al mapa principal
+    else:   # TODO Completar escenario donde no se había agregado el autor al mapa principal HECHO 
+        books = al.new_list()
+        al.add_last(books, book)
+        pub_year_map = lp.new_map(1000,0.7)
+        lp.put(pub_year_map,pub_year,books)
+        lp.put(books_by_year_author,author_name,pub_year_map) 
+
     return catalog
 
 
@@ -236,8 +307,10 @@ def add_book_tag(catalog, book_tag):
     if book_tag_value:
         book_tag_list = lp.get(catalog['book_tags'],t['tag_id'])
         al.add_last(book_tag_list,book_tag)
-    else:
-        pass #TODO Completar escenario donde el book_tag no se había agregado al mapa   
+    else: #TODO Completar escenario donde el book_tag no se había agregado al mapa HECHO 
+        book_tag_list = al.new_list()
+        al.add_last(book_tag_list,book_tag)
+        lp.put(catalog['book_tags'],t['tag_id'],book_tag_list) 
     return catalog
 
 #  -------------------------------------------------------------
@@ -248,16 +321,16 @@ def get_book_info_by_book_id(catalog, good_reads_book_id):
     """
     Retorna toda la informacion que se tenga almacenada de un libro según su good_reads_id.
     """
-    #TODO Completar función de consulta
-    pass
+    #TODO Completar función de consulta HECHO
+    return lp.get(catalog['books_by_id'],good_reads_book_id)
 
 
 def get_books_by_author(catalog, author_name):
     """
     Retorna los libros asociado al autor ingresado por párametro
     """
-    #TODO Completar función de consulta
-    pass
+    #TODO Completar función de consulta HECHO
+    return lp.get(catalog['books_by_authors'],author_name)
 
 
 def get_books_by_tag(catalog, tag_name):
@@ -270,8 +343,8 @@ def get_books_by_tag(catalog, tag_name):
     de book_tags y finalmente relacionarlo con los datos completos del libro.
 
     """
-    #TODO Completar función de consulta
-    pass
+    #TODO Completar función de consulta HECHO
+    return lp.get(catalog['tags'],tag_name)
 
 
 def get_books_by_author_pub_year(catalog, author_name, pub_year):
@@ -281,22 +354,29 @@ def get_books_by_author_pub_year(catalog, author_name, pub_year):
     Retorna los libros asociados a un autor y un año de publicación específicos
     """
     # Iniciar medición de tiempo
-    start_time = getTime()
+    start_time = get_time()
     
     # Iniciar medición de memoria
     tracemalloc.start()
-    start_memory = getMemory()
+    start_memory = get_memory()
     
-    # TODO: Completar la función de consulta
-    resultado = None  # Sustituir con la lógica real
-    
+    # TODO: Completar la función de consulta HECHO
+    # Sustituir con la lógica real
+    author_map = lp.get(catalog['books_by_year_author'], author_name)
+    if author_map:
+        year_map = lp.get(author_map, pub_year)
+        if year_map:
+            resultado = year_map
+    else:
+        resultado = None
+
     # Detener medición de memoria
-    stop_memory = getMemory()
+    stop_memory = get_memory()
     
     # Calcular medición de tiempo y memoria
-    end_time = getTime()
-    tiempo_transcurrido = deltaTime(end_time, start_time)
-    memoria_usada = deltaMemory(start_memory, stop_memory)
+    end_time = get_time()
+    tiempo_transcurrido = delta_time(end_time, start_time)
+    memoria_usada = delta_memory(start_memory, stop_memory)
     
     return resultado, tiempo_transcurrido, memoria_usada
 
@@ -324,25 +404,25 @@ def book_tag_size(catalog):
 # Funciones utilizadas para obtener memoria y tiempo
 #  -------------------------------------------------------------
 
-def getTime():
+def get_time():
     """
     Devuelve el instante tiempo de procesamiento en milisegundos
     """
     return float(time.perf_counter() * 1000)
 
-def getMemory():
+def get_memory():
     """
     Toma una muestra de la memoria alocada en un instante de tiempo
     """
     return tracemalloc.take_snapshot()
 
-def deltaTime(end, start):
+def delta_time(end, start):
     """
     Devuelve la diferencia entre tiempos de procesamiento muestreados
     """
     return float(end - start)
 
-def deltaMemory(start_memory, stop_memory):
+def delta_memory(start_memory, stop_memory):
     """
     Calcula la diferencia en memoria alocada del programa entre dos
     instantes de tiempo y devuelve el resultado en kBytes

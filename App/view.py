@@ -26,8 +26,10 @@
 
 import sys
 import App.logic as logic
-# TODO Realice la importación del mapa linear probing
-# TODO Realice la importación de ArrayList como estructura de datos auxiliar para sus requerimientos
+import tracemalloc
+
+from DataStructures.Map import map_linear_probing as lp
+from DataStructures.List import array_list as al
 
 
 """
@@ -47,13 +49,24 @@ def new_logic():
     control = logic.new_logic()
     return control
 
-# TODO: Incluir las mediciones de tiempo y uso de memoria en la ejecución de la consulta.
+# TODO: Incluir las mediciones de tiempo y uso de memoria en la ejecución de la consulta HECHO
 def load_data(control):
     """
     Solicita a la controlador que cargue los datos
     """
-    books, authors, tags, book_tags = logic.load_data(control)
-    return books, authors, tags, book_tags
+    start = logic.get_time()
+    tracemalloc.start()
+    start_mem = logic.get_memory()
+
+    books, authors, tags, book_tags = logic.load_data(control) 
+
+    end = logic.get_time()
+    delta_time = (start,end)
+    end_mem = logic.get_memory()
+    delta_memory = (start_mem, end_mem)
+
+
+    return books, authors, tags, book_tags, delta_time, delta_memory
 
 #  -------------------------------------------------------------
 # Funciones para la correcta impresión de los datos
@@ -148,7 +161,12 @@ def main():
     while working:
         print_menu()
         inputs = input("Seleccione una opción para continuar\n")
-        # TODO: agregar tiempo de ejecución y consumo de memoria
+        # TODO: agregar tiempo de ejecución y consumo de memoria HECHO
+
+        start = logic.get_time()
+        tracemalloc.start()
+        start_mem = logic.get_memory()
+
         if int(inputs[0]) == 1:
             print("Cargando información de los archivos ....")
             bk, at, tg, bktg = load_data(control)
@@ -193,4 +211,13 @@ def main():
 
         else:
             continue
+
+        end = logic.get_time()
+        delta_time = (start,end)
+        end_mem = logic.get_memory()
+        delta_memory = (start_mem, end_mem)
+
+        print(f"\nTiempo transcurrido: {delta_time[1] - delta_time[0]:.2f} ms")
+        print(f"Memoria utilizada: {delta_memory[1] - delta_memory[0]:.2f} kB\n")
+
     sys.exit(0)
