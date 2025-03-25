@@ -2,17 +2,17 @@ from DataStructures.Map import map_functions as mf
 from DataStructures.Map import map_entry as me
 from DataStructures.List import array_list as ar
 from DataStructures.List import single_linked_list as sl
-
+import random as rd
 def new_map(num_elements, load_factor, prime=109345121):
     capacity_prime = mf.next_prime(num_elements/load_factor)
     table = ar.new_list()
-    x = sl.new_list()
     for i in range(capacity_prime):
+        x = sl.new_list()
         ar.add_last(table, x)
     my_table = {"prime": 109345121,
                 "capacity": capacity_prime,
-                "scale": 1,
-                "shift": 0,
+                "scale": rd.randint(1, prime-1),
+                "shift": rd.randint(0, prime-1),
                 "table": table,
                 "current_factor": 0,
                 "limit_factor": load_factor,
@@ -63,9 +63,12 @@ def remove(my_table, key):
 def get(my_table, key):
     hash = mf.hash_value(my_table, key)
     pos = sl.is_present(my_table["table"]["elements"][hash],key, default_compare)
-    info = sl.get_element(my_table["table"]["elements"][hash], pos)
-    value = me.get_value(info)
-    return value
+    if pos == -1:
+        return None
+    else:   
+        info = sl.get_element(my_table["table"]["elements"][hash], pos)
+        value = me.get_value(info)
+        return value
 
 def size(my_table):
     size = my_table["size"]
@@ -80,22 +83,24 @@ def is_empty(my_table):
 def key_set(my_table):
     pos = 0
     lista_llaves = ar.new_list()
-    while pos < my_table["size"]:
+    while pos < my_table["capacity"]:
         slot_size = sl.size(my_table["table"]["elements"][pos])
         for i in range(slot_size):
             llave = me.get_key(sl.get_element(my_table["table"]["elements"][pos],i))
-            ar.add_last(lista_llaves, llave)
+            if llave != "__EMPTY__" and llave != None:
+                ar.add_last(lista_llaves, llave)
         pos += 1
     return lista_llaves
 
 def value_set(my_table):
     pos = 0
     lista_valores = ar.new_list()
-    while pos < my_table["size"]:
+    while pos < my_table["capacity"]:
         slot_size = sl.size(my_table["table"]["elements"][pos])
         for i in range(slot_size):
             valor = me.get_value(sl.get_element(my_table["table"]["elements"][pos],i))
-            ar.add_last(lista_valores, valor)
+            if valor != "__EMPTY__" and valor != None:
+                ar.add_last(lista_valores, valor)
         pos += 1
     return lista_valores
 
@@ -115,10 +120,11 @@ def rehash(my_table):
                  "limit_factor": my_table["limit_factor"],
                  "size": 0}
     pos = 0
-    while pos < my_table["size"]:
+    while pos < my_table["capacity"]:
         for i in range(my_table["table"]["elements"][pos]["size"]):
             llave = me.get_key(sl.get_element(my_table["table"]["elements"][pos], i))
             valor = me.get_value(sl.get_element(my_table["table"]["elements"][pos], i))
-            put(new_table, llave, valor)
+            if llave != "__EMPTY__" and llave != None and valor != "__EMPTY__" and valor != None:
+                put(new_table, llave, valor)
         pos += 1
     return new_table
