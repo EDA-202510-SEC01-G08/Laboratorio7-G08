@@ -263,7 +263,7 @@ def add_book_author_and_year(catalog, author_name, book):
     #Si el año de publicación está vacío se reemplaza por un valor simbolico
     #TODO Completar manejo de los escenarios donde el año de publicación es vacío. HECHO
     if not pub_year:
-        pub_year = "Sin año"
+        pub_year = "0"
 
     author_value = lp.get(books_by_year_author,author_name)
     if author_value:

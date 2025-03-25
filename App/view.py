@@ -26,6 +26,7 @@
 
 import sys
 import App.logic as logic
+import tracemalloc
 
 from DataStructures.Map import map_linear_probing as lp
 from DataStructures.List import array_list as al
@@ -54,6 +55,7 @@ def load_data(control):
     Solicita a la controlador que cargue los datos
     """
     start = get_time()
+    tracemalloc.start()
     start_mem = get_memory()
 
     books, authors, tags, book_tags = logic.load_data(control) 
@@ -162,6 +164,7 @@ def main():
         # TODO: agregar tiempo de ejecución y consumo de memoria HECHO
 
         start = get_time()
+        tracemalloc.start()
         start_mem = get_memory()
 
         if int(inputs[0]) == 1:
