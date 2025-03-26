@@ -3,6 +3,7 @@ from DataStructures.Map import map_entry as me
 from DataStructures.List import array_list as ar
 from DataStructures.List import single_linked_list as sl
 import random as rd
+
 def new_map(num_elements, load_factor, prime=109345121):
     capacity_prime = mf.next_prime(num_elements/load_factor)
     table = ar.new_list()
@@ -25,6 +26,7 @@ def put(my_table, key, value):
     if sl.is_present(my_table["table"]["elements"][hash], key, default_compare) != -1:
         pos = sl.is_present(my_table["table"]["elements"][hash], key, default_compare)
         sl.change_info(my_table["table"]["elements"][hash], pos, {"key": key, "value": value})
+        
     elif sl.is_present(my_table["table"]["elements"][hash], key, default_compare) == -1:
         sl.add_last(my_table["table"]["elements"][hash], me.new_map_entry(key, value))
         my_table["size"] += 1
@@ -32,6 +34,7 @@ def put(my_table, key, value):
     
     if my_table["current_factor"] > my_table["limit_factor"]:
         rehash(my_table)
+        
     return my_table
 
 def default_compare(key, entry):
@@ -105,26 +108,27 @@ def value_set(my_table):
     return lista_valores
 
 def rehash(my_table):
-    cap_actual = my_table["capacity"]
-    cap_nueva = mf.next_prime(2*cap_actual)
-    table_nueva = ar.new_list()
-    for x in range(cap_nueva):
-        mini_lista = sl.new_list()
-        ar.add_last(table_nueva, mini_lista)
-    new_table = {"prime": 109345121,
-                 "capacity": cap_nueva,
-                 "scale": 1,
-                 "shift": 0,
-                 "table": table_nueva,
-                 "current_factor": 0,
-                 "limit_factor": my_table["limit_factor"],
-                 "size": 0}
+    cap_vieja = my_table["capacity"]
+    cap_nueva = mf.next_prime(2*cap_vieja)
+    tabla_orig = my_table["table"]
+
+    new_table = ar.new_list()
+    for i in range(cap_nueva):
+        ar.add_last(new_table, sl.new_list())
+
+    my_table["size"] = 0
+    my_table["capacity"] = cap_nueva
+    my_table["current_factor"] = 0
+    my_table["table"] = new_table
+
     pos = 0
-    while pos < my_table["capacity"]:
-        for i in range(my_table["table"]["elements"][pos]["size"]):
-            llave = me.get_key(sl.get_element(my_table["table"]["elements"][pos], i))
-            valor = me.get_value(sl.get_element(my_table["table"]["elements"][pos], i))
+    while pos < cap_vieja:
+        for i in range(tabla_orig["elements"][pos]["size"]):
+            llave = me.get_key(sl.get_element(tabla_orig["elements"][pos], i))
+            valor = me.get_value(sl.get_element(tabla_orig["elements"][pos], i))
             if llave != "__EMPTY__" and llave != None and valor != "__EMPTY__" and valor != None:
-                put(new_table, llave, valor)
+                put(my_table, llave, valor)
         pos += 1
-    return new_table
+
+    return my_table
+
