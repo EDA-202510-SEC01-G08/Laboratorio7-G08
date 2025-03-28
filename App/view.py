@@ -66,7 +66,7 @@ def load_data(control):
     delta_memory = (start_mem, end_mem)
 
 
-    return books, authors, tags, book_tags, delta_time, delta_memory
+    return books, authors, tags, book_tags
 
 #  -------------------------------------------------------------
 # Funciones para la correcta impresión de los datos

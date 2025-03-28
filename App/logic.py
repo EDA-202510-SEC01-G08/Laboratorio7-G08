@@ -86,20 +86,11 @@ def load_data(catalog):
     Carga los datos de los archivos y cargar los datos en la
     estructura de datos
     """
-    start = get_time()
-    tracemalloc.start()
-    start_mem = get_memory()
-
     books, authors = load_books(catalog)
     tag_size = load_tags(catalog)
-    book_tag_size = load_books_tags(catalog)
+    book_tag_size = load_books_tags(catalog) 
 
-    end = get_time()
-    delta_time = (start,end)
-    end_mem = get_memory()
-    delta_memory = (start_mem, end_mem)
-
-    return books, authors,tag_size,book_tag_size, delta_time, delta_memory
+    return books, authors,tag_size, book_tag_size
 
 
 def load_books(catalog):
@@ -108,83 +99,51 @@ def load_books(catalog):
     cada uno de ellos, se crea en la lista de autores, a dicho autor y una
     referencia al libro que se esta procesando.
     """
-    start = get_time()
-    tracemalloc.start()
-    start_mem = get_memory()
 
-    booksfile = data_dir + "books.csv"
+    booksfile = data_dir + "books-small.csv"
     input_file = csv.DictReader(open(booksfile, encoding='utf-8'))
     for book in input_file:
         add_book(catalog, book)
 
-    end = get_time()
-    delta_time = (start,end)
-    end_mem = get_memory()
-    delta_memory = (start_mem, end_mem)
-    
-    return book_size(catalog), author_size(catalog), delta_time, delta_memory
+    return book_size(catalog), author_size(catalog)
 
 
 def load_tags(catalog):
     """
     Carga todos los tags del archivo y los agrega a la lista de tags
     """
-    start = get_time()
-    tracemalloc.start()
-    start_mem = get_memory()
 
     tagsfile = data_dir + 'tags.csv'
     input_file = csv.DictReader(open(tagsfile, encoding='utf-8'))
     for tag in input_file:
         add_tag(catalog, tag)
 
-    end = get_time()
-    delta_time = (start,end)
-    end_mem = get_memory()
-    delta_memory = (start_mem, end_mem)
-
-    return tag_size(catalog), delta_time, delta_memory
+    return tag_size(catalog)
 
 
 def load_books_tags(catalog):
     """
     Carga la información que asocia tags con libros.
     """
-    start = get_time()
-    tracemalloc.start()
-    start_mem = get_memory()
 
-    bookstagsfile = data_dir +"book_tags.csv"
+    bookstagsfile = data_dir +"book_tags-small.csv"
     input_file = csv.DictReader(open(bookstagsfile, encoding='utf-8'))
     for booktag in input_file:
         add_book_tag(catalog, booktag)
 
-    end = get_time()
-    delta_time = (start,end)
-    end_mem = get_memory()
-    delta_memory = (start_mem, end_mem)
-
-    return book_tag_size(catalog), delta_time, delta_memory
+    return book_tag_size(catalog)
 
 
 def new_tag(name, id):
     """
     Esta estructura almancena los tags utilizados para marcar libros.
     """
-    start = get_time()
-    tracemalloc.start()
-    start_mem = get_memory()
 
     tag = {"name": "", "tag_id": ""}
     tag['name'] = name
     tag['tag_id'] = id
 
-    end = get_time()
-    delta_time = (start,end)
-    end_mem = get_memory()
-    delta_memory = (start_mem, end_mem)
-
-    return tag, delta_time, delta_memory
+    return tag
 
 
 def new_book_tag(tag_id, book_id, count):
@@ -192,18 +151,9 @@ def new_book_tag(tag_id, book_id, count):
     Esta estructura crea una relación entre un tag y
     los libros que han sido marcados con dicho tag.
     """
-    start = get_time()
-    tracemalloc.start()
-    start_mem = get_memory()
-
     book_tag = {'tag_id': tag_id, 'book_id': book_id,'count':count}
 
-    end = get_time()
-    delta_time = (start,end)
-    end_mem = get_memory()
-    delta_memory = (start_mem, end_mem)
-
-    return book_tag, delta_time, delta_memory
+    return book_tag
 
 #  -----------------------------------------------   
 #  Funciones para agregar informacion al catalogo
@@ -291,17 +241,12 @@ def add_tag(catalog, tag):
     """
     t = new_tag(tag['tag_name'], tag['tag_id'])
     lp.put(catalog['tags'],tag['tag_name'],t)
+
     return catalog
 
 
 def add_book_tag(catalog, book_tag):
-    """
-    Adiciona un tag a la lista de tags.
-    Si el book_tag ya había sido agregado:
-        - Se obtiene la lista asociada al valor del indice y se agrega el book_yag
-    Si el book_tag no había sido agregado:
-        - Se crea el nuevo indice en el mapa y como valor se agrega una nueva lista con el book_tag asociado.
-    """
+
     t = new_book_tag(book_tag['tag_id'], book_tag['goodreads_book_id'], book_tag['count'])
     book_tag_value = lp.contains(catalog['book_tags'],t['tag_id'])
     if book_tag_value:
@@ -310,7 +255,8 @@ def add_book_tag(catalog, book_tag):
     else: #TODO Completar escenario donde el book_tag no se había agregado al mapa HECHO 
         book_tag_list = al.new_list()
         al.add_last(book_tag_list,book_tag)
-        lp.put(catalog['book_tags'],t['tag_id'],book_tag_list) 
+        lp.put(catalog['book_tags'],t['tag_id'],book_tag_list)
+
     return catalog
 
 #  -------------------------------------------------------------
@@ -411,10 +357,8 @@ def get_time():
     return float(time.perf_counter() * 1000)
 
 def get_memory():
-    """
-    Toma una muestra de la memoria alocada en un instante de tiempo
-    """
-    return tracemalloc.take_snapshot()
+    current, peak = tracemalloc.get_traced_memory()
+    return current / 1024  # Convert bytes to kilobytes
 
 def delta_time(end, start):
     """

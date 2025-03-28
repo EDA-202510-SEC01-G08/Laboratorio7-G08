@@ -14,7 +14,7 @@ def new_map(num_elements, load_factor, prime=109345121):
 
      map = {"prime": prime, "capacity": capacity, 'scale': rd.randint(1,prime-1),
            'shift': rd.randint(0, prime-1),'table': x, "current_factor": 0, "limit_factor": load_factor,
-             "size": 0} 
+             "size": 0}
     
      return map
 
@@ -29,7 +29,7 @@ def put(my_map, key, value):
      my_map["current_factor"] = size(my_map) / my_map["capacity"]
 
      if my_map["current_factor"] > my_map["limit_factor"]:
-         rehash(my_map)
+         return rehash(my_map)
      
      return my_map
 
@@ -116,14 +116,19 @@ def is_available(table, pos):
      return result 
 
 def rehash(my_map):
+     my_map["capacity"] = mf.next_prime(my_map["capacity"] * 2)
+     my_map["current_factor"] = 0
+     my_map["size"] = 0
+     old_table = my_map["table"]
+     my_map["table"] = lt.new_list()
+     for i in range(my_map["capacity"]):
+         dict = {"key": None, "value": None}
+         lt.add_last(my_map["table"], dict)
+     for i in old_table["elements"]:
+         if me.get_key(i) is not None and me.get_key(i) != "__EMPTY__":
+             put(my_map, me.get_key(i), me.get_value(i))
 
-    nuevo = new_map(my_map["capacity"], my_map["limit_factor"])
-    j = 0
-    for i in key_set(my_map)["elements"]:
-        if i is not None and i != "__EMPTY__":
-            put(nuevo, i, lt.get_element(value_set(my_map), j))
-        j += 1
-    return nuevo
+     return my_map
 
 def default_compare(key, entry):
 
